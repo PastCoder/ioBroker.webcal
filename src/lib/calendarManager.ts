@@ -21,18 +21,20 @@ export interface ICalendarTimeRangObj {
 export class jsonEvent {
     id: string | null;
     date: Date;
+	dateEnd?: Date; 
     startTime?: string;
     endTime?: string;
     calendarName: string;
     summary?: string;
 
-    constructor(event: CalendarEvent, date: Date, startTime?: string, endTime?: string) {
+    constructor(event: CalendarEvent, date: Date, startTime?: string, endTime?: string, dateEnd?: Date) {
         this.id = event.id;
         this.calendarName = event.calendarName;
         this.summary = event.summary;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.dateEnd = dateEnd; 
     }
 
     toString(): string {
@@ -98,7 +100,8 @@ export abstract class CalendarEvent implements webcal.ICalendarEventBase {
         const days: Record<number, jsonEvent> = {};
         if (timeObj) {
             const firstDay = timeObj.start.startOf('D').diff(CalendarEvent.todayMidnight, 'd');
-            let time = timeObj.start.format('HH:mm');
+            let time = timeObj.start.format('HH:mm'); 
+            const realEndDate: Date = timeObj.end.toDate();
             if (!timeObj.start.isSame(timeObj.end)) {
                 let lastDay = Math.min(
                     timeObj.end.startOf('D').diff(CalendarEvent.todayMidnight, 'd'),
@@ -111,7 +114,7 @@ export abstract class CalendarEvent implements webcal.ICalendarEventBase {
                     d = -CalendarEvent.daysPast;
                 } else if (time != '00:00') {
                     // Event start in timerange
-                    days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time);
+                    days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time, undefined, realEndDate);
                     d++;
                 }
                 time = timeObj.end.format('HH:mm');
@@ -121,7 +124,7 @@ export abstract class CalendarEvent implements webcal.ICalendarEventBase {
                     time = '23:59';
                 }
                 for (; d <= lastDay; d++) {
-                    days[d] = new jsonEvent(this, timeObj.start.add(d - firstDay, 'd').toDate());
+                    days[d] = new jsonEvent(this, timeObj.start.add(d - firstDay, 'd').toDate(), undefined, undefined, realEndDate);
                 }
                 if (time != '23:59') {
                     if (days[lastDay]) {
@@ -129,7 +132,7 @@ export abstract class CalendarEvent implements webcal.ICalendarEventBase {
                     }
                 }
             } else if (firstDay >= -CalendarEvent.daysPast) {
-                days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time != '00:00' ? time : undefined);
+                days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time != '00:00' ? time : undefined, time, realEndDate);
                 time = timeObj.end.format('HH:mm');
                 if (time != '23:59') {
                     //&& time != days[firstDay].startTime) {
