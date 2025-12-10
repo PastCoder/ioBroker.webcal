@@ -116,7 +116,7 @@ class CalendarEvent {
     if (timeObj) {
       const firstDay = timeObj.start.startOf("D").diff(CalendarEvent.todayMidnight, "d");
       let time = timeObj.start.format("HH:mm");
-	  const realEndDate: Date = timeObj.end.toDate();
+	  const realEndDate = new Date(timeObj.end.toDate());
       if (!timeObj.start.isSame(timeObj.end)) {
         let lastDay = Math.min(
           timeObj.end.startOf("D").diff(CalendarEvent.todayMidnight, "d"),
