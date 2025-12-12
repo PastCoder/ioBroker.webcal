@@ -163,8 +163,7 @@ class Event {
         const time = {
           ...times[i],
           timeText: times[i].toString(),
-          dateText, 
-		  dateEnd: ev.dateEnd ? ev.dateEnd.toISOString() : undefined
+          dateText
         };
         jsonData.push(time);
         if (time.date > now && time.date < next) {

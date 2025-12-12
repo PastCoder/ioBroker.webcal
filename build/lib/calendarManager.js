@@ -46,17 +46,15 @@ let i18n = {};
 class jsonEvent {
   id;
   date;
-  dateEnd;
   startTime;
   endTime;
   calendarName;
   summary;
-  constructor(event, date, startTime, endTime, dateEnd) {
+  constructor(event, date, startTime, endTime) {
     this.id = event.id;
     this.calendarName = event.calendarName;
     this.summary = event.summary;
     this.date = date;
-    this.dateEnd = dateEnd;
     this.startTime = startTime;
     this.endTime = endTime;
   }
@@ -116,7 +114,6 @@ class CalendarEvent {
     if (timeObj) {
       const firstDay = timeObj.start.startOf("D").diff(CalendarEvent.todayMidnight, "d");
       let time = timeObj.start.format("HH:mm");
-	  const realEndDate: Date = timeObj.end.toDate();
       if (!timeObj.start.isSame(timeObj.end)) {
         let lastDay = Math.min(
           timeObj.end.startOf("D").diff(CalendarEvent.todayMidnight, "d"),
@@ -126,7 +123,7 @@ class CalendarEvent {
         if (firstDay < -CalendarEvent.daysPast) {
           d = -CalendarEvent.daysPast;
         } else if (time != "00:00") {
-          days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time, undefined, realEndDate);
+          days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time);
           d++;
         }
         time = timeObj.end.format("HH:mm");
@@ -135,7 +132,7 @@ class CalendarEvent {
           time = "23:59";
         }
         for (; d <= lastDay; d++) {
-          days[d] = new jsonEvent(this, timeObj.start.add(d - firstDay, "d").toDate(), undefined, undefined, realEndDate);
+          days[d] = new jsonEvent(this, timeObj.start.add(d - firstDay, "d").toDate());
         }
         if (time != "23:59") {
           if (days[lastDay]) {
@@ -143,7 +140,7 @@ class CalendarEvent {
           }
         }
       } else if (firstDay >= -CalendarEvent.daysPast) {
-        days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time != "00:00" ? time : void 0, time, realEndDate);
+        days[firstDay] = new jsonEvent(this, timeObj.start.toDate(), time != "00:00" ? time : void 0);
         time = timeObj.end.format("HH:mm");
         if (time != "23:59") {
           days[firstDay].endTime = time;
