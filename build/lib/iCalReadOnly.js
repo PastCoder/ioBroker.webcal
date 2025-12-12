@@ -1,130 +1,147 @@
 "use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var iCalReadOnly_exports = {};
-__export(iCalReadOnly_exports, {
-  ICalReadOnlyClient: () => ICalReadOnlyClient,
-  initLib: () => initLib
-});
-module.exports = __toCommonJS(iCalReadOnly_exports);
-var import_axios = __toESM(require("axios"));
-var import_IcalCalendarEvent = require("./IcalCalendarEvent");
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ICalReadOnlyClient = void 0;
+exports.initLib = initLib;
+var axios_1 = require("axios");
+var IcalCalendarEvent_1 = require("./IcalCalendarEvent");
+//let adapter: AdapterInstance;
 function initLib(adapterInstance) {
-  (0, import_IcalCalendarEvent.initLib)(adapterInstance);
+    //adapter = adapterInstance;
+    (0, IcalCalendarEvent_1.initLib)(adapterInstance);
 }
-class ICalReadOnlyClient {
-  name;
-  axiosOptions;
-  ignoreSSL = false;
-  constructor(calConfig) {
-    this.name = calConfig.name;
-    this.ignoreSSL = !!calConfig.ignoreSSL;
-    this.axiosOptions = {
-      method: "get",
-      responseType: "text",
-      url: calConfig.serverUrl
-    };
-    if (calConfig.username) {
-      this.axiosOptions.auth = {
-        username: calConfig.username,
-        password: calConfig.password
-      };
-    }
-  }
-  /**
-   * fetch Events form Calendar and pushed them to calEvents Array
-   *
-   * @param calEvents target Array of ICalendarEventBase
-   * @param startDate as date object
-   * @param endDate as date object
-   * @returns null or errorstring
-   */
-  loadEvents(calEvents, startDate, endDate) {
-    let storeDefaultIgnoreSSL = null;
-    if (this.ignoreSSL && process.env.NODE_TLS_REJECT_UNAUTHORIZED != "0") {
-      storeDefaultIgnoreSSL = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    }
-    return (0, import_axios.default)(this.axiosOptions).then((response) => {
-      if (response.data) {
-        const allEvents = (0, import_IcalCalendarEvent.getAllIcalCalendarEvents)(response.data, this.name, startDate, endDate, true);
-        for (const ev of allEvents) {
-          calEvents.push(ev);
+var ICalReadOnlyClient = /** @class */ (function () {
+    function ICalReadOnlyClient(calConfig) {
+        this.ignoreSSL = false;
+        this.name = calConfig.name;
+        this.ignoreSSL = !!calConfig.ignoreSSL;
+        this.axiosOptions = {
+            method: 'get',
+            responseType: 'text',
+            url: calConfig.serverUrl,
+        };
+        if (calConfig.username) {
+            this.axiosOptions.auth = {
+                username: calConfig.username,
+                password: calConfig.password,
+            };
         }
-        return null;
-      }
-      return `Error reading from URL "${this.axiosOptions.url}": Received no data`;
-    }).catch((error) => {
-      if (error.response) {
-        return `Error reading from URL "${this.axiosOptions.url}": ${error.response.status}`;
-      } else if (error.request) {
-        return `Error reading from URL "${this.axiosOptions.url}"`;
-      }
-      return `Error reading from URL "${this.axiosOptions.url}": ${error.message}`;
-    }).catch((reason) => {
-      return reason.message;
-    }).finally(() => {
-      if (storeDefaultIgnoreSSL !== null) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = storeDefaultIgnoreSSL;
-      }
-    });
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async addEvent(calEvent) {
-    return Promise.resolve({
-      ok: false,
-      message: `calender is readonly (${this.name})`
-    });
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  updateEvent(calEvent) {
-    return Promise.resolve({
-      ok: false,
-      message: `calender is readonly (${this.name})`
-    });
-  }
-  /**
-   * delte Event from Calendar
-   *
-   * @param id event id
-   * @returns Server response, like {ok:boolen}
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deleteEvent(id) {
-    return Promise.resolve({
-      ok: false,
-      message: `calender is readonly (${this.name})`
-    });
-  }
-}
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  ICalReadOnlyClient,
-  initLib
-});
-//# sourceMappingURL=iCalReadOnly.js.map
+    }
+    /**
+     * fetch Events form Calendar and pushed them to calEvents Array
+     *
+     * @param calEvents target Array of ICalendarEventBase
+     * @param startDate as date object
+     * @param endDate as date object
+     * @returns null or errorstring
+     */
+    ICalReadOnlyClient.prototype.loadEvents = function (calEvents, startDate, endDate) {
+        var _this = this;
+        var storeDefaultIgnoreSSL = null;
+        if (this.ignoreSSL && process.env.NODE_TLS_REJECT_UNAUTHORIZED != '0') {
+            storeDefaultIgnoreSSL = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        }
+        return (0, axios_1.default)(this.axiosOptions)
+            .then(function (response) {
+            if (response.data) {
+                var allEvents = (0, IcalCalendarEvent_1.getAllIcalCalendarEvents)(response.data, _this.name, startDate, endDate, true);
+                for (var _i = 0, allEvents_1 = allEvents; _i < allEvents_1.length; _i++) {
+                    var ev = allEvents_1[_i];
+                    calEvents.push(ev);
+                }
+                return null;
+            }
+            return "Error reading from URL \"".concat(_this.axiosOptions.url, "\": Received no data");
+        })
+            .catch(function (error) {
+            if (error.response) {
+                return "Error reading from URL \"".concat(_this.axiosOptions.url, "\": ").concat(error.response.status);
+            }
+            else if (error.request) {
+                return "Error reading from URL \"".concat(_this.axiosOptions.url, "\"");
+            }
+            return "Error reading from URL \"".concat(_this.axiosOptions.url, "\": ").concat(error.message);
+        })
+            .catch(function (reason) {
+            return reason.message;
+        })
+            .finally(function () {
+            if (storeDefaultIgnoreSSL !== null) {
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = storeDefaultIgnoreSSL;
+            }
+        });
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ICalReadOnlyClient.prototype.addEvent = function (calEvent) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve({
+                        ok: false,
+                        message: "calender is readonly (".concat(this.name, ")"),
+                    })];
+            });
+        });
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ICalReadOnlyClient.prototype.updateEvent = function (calEvent) {
+        return Promise.resolve({
+            ok: false,
+            message: "calender is readonly (".concat(this.name, ")"),
+        });
+    };
+    /**
+     * delte Event from Calendar
+     *
+     * @param id event id
+     * @returns Server response, like {ok:boolen}
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ICalReadOnlyClient.prototype.deleteEvent = function (id) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve({
+                        ok: false,
+                        message: "calender is readonly (".concat(this.name, ")"),
+                    })];
+            });
+        });
+    };
+    return ICalReadOnlyClient;
+}());
+exports.ICalReadOnlyClient = ICalReadOnlyClient;
